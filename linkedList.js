@@ -21,14 +21,34 @@ export default class LinkedList {
     tmp.nextNode = new Node(value, null);
   }
 
-  find(key) {
+  find(value) {
     let tmp = this.head;
     while (tmp != null) {
-      if (tmp.value == key) {
+      if (tmp.value == value) {
         return tmp;
       }
       tmp = tmp.nextNode;
     }
     return null;
+  }
+
+  removeAt(index) {
+    if (this.head == null) {
+      console.log("List is empty");
+      return null;
+    }
+
+    if (index == 0) {
+      this.head = this.head.nextNode;
+      return;
+    }
+
+    let tmp = this.head;
+    let count = 0;
+    while (tmp.nextNode && count < index - 1) {
+      tmp = tmp.nextNode;
+      count++;
+    }
+    tmp.nextNode = tmp.nextNode.nextNode;
   }
 }
