@@ -16,39 +16,48 @@ export default class LinkedList {
       return;
     }
     let tmp = this.head;
-    while (tmp.nextNode != null) tmp = tmp.nextNode;
+    while (tmp.nextNode != null) {
+      tmp = tmp.nextNode;
+    }
 
     tmp.nextNode = new Node(value, null);
   }
 
-  find(value) {
+  find(callback) {
     let tmp = this.head;
-    while (tmp != null) {
-      if (tmp.value == value) {
+    while (tmp !== null) {
+      if (callback(tmp.value)) {
+        console.log(tmp.value);
         return tmp;
       }
       tmp = tmp.nextNode;
     }
+    console.log(`Node not found.`);
     return null;
   }
 
-  removeAt(index) {
-    if (this.head == null) {
-      console.log("List is empty");
-      return null;
-    }
+  remove(callback) {
+    if (!this.head) return null;
 
-    if (index == 0) {
+    // If the head matches the condition, remove it
+    if (callback(this.head.value)) {
+      const removedNode = this.head;
       this.head = this.head.nextNode;
-      return;
+      return removedNode;
     }
 
-    let tmp = this.head;
-    let count = 0;
-    while (tmp.nextNode && count < index - 1) {
-      tmp = tmp.nextNode;
-      count++;
+    // Traverse the list to find the node to remove
+    let current = this.head;
+    while (current.nextNode) {
+      if (callback(current.nextNode.value)) {
+        const removedNode = current.nextNode;
+        current.nextNode = current.nextNode.nextNode;
+        return removedNode;
+      }
+      current = current.nextNode;
     }
-    tmp.nextNode = tmp.nextNode.nextNode;
+
+    // Return null if no node matches the condition
+    return null;
   }
 }

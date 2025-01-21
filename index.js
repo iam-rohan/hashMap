@@ -1,9 +1,9 @@
-import LinkedList from "./linkedList";
+import LinkedList from "./linkedList.js";
 
-class HashMap {
-  constructor(loadFactor, capacity) {
+export default class HashMap {
+  constructor(loadFactor) {
     this.loadFactor = loadFactor;
-    this.capacity = capacity;
+    this.capacity = 16;
     this.buckets = Array(this.capacity).fill(null);
     this.size = 0;
   }
@@ -20,40 +20,42 @@ class HashMap {
 
   set(key, value) {
     let index = this.hash(key);
-    //decides when to regrow
-    if (this.size >= this.capacity * this.loadFactor) {
-      grow();
-    }
 
-    if (index < 0 || index >= this.buckets.length) {
-      throw new Error("Trying to access index out of bounds");
+    if (this.size >= this.capacity * this.loadFactor) {
+      this.grow();
     }
 
     if (!this.buckets[index]) {
       this.buckets[index] = new LinkedList();
     }
 
-    const existingNode = this.buckets[index].find((node) => node.key === key);
+    const existingNode = this.buckets[index].find((node) => {
+      console.log("Inspecting node:", node);
+      return node.key === key;
+    });
 
     if (existingNode) {
-      existingNode.value = value;
+      console.log(`Updating value for key: ${key}, old value: ${existingNode.value.value}, new value: ${value}`);
+      existingNode.value.value = value;
     } else {
+      console.log(`Inserting new key: ${key}, value: ${value}`);
       this.buckets[index].append({ key, value });
       this.size++;
     }
   }
 
   grow() {
+    console.log("Growing hash map...");
     const oldBuckets = this.buckets;
     this.capacity *= 2;
     this.buckets = Array(this.capacity).fill(null);
     this.size = 0;
 
-    //reset all the keys after creation of new buckets and capacity increase
     oldBuckets.forEach((bucket) => {
       if (bucket) {
         let currentNode = bucket.head;
         while (currentNode) {
+          console.log(`Rehashing key: ${currentNode.value.key}, value: ${currentNode.value.value}`);
           this.set(currentNode.value.key, currentNode.value.value);
           currentNode = currentNode.nextNode;
         }
@@ -63,21 +65,22 @@ class HashMap {
 
   get(key) {
     let index = this.hash(key);
-    if (index < 0 || index >= this.buckets.length) {
-      throw new Error("Trying to access index out of bounds");
+    const bucket = this.buckets[index];
+
+    if (!bucket) {
+      console.log(`No bucket found for key: ${key}`);
+      return null;
     }
 
-    let bucket = this.buckets[index];
+    const node = bucket.find((node) => node.key === key);
 
-    let current = bucket.head;
-
-    while (current) {
-      if (current.value.key === key) {
-        return current.value.value;
-      }
-      current = current.nextNode;
+    if (node) {
+      console.log(`Found key: ${key}, value: ${node.value.value}`);
+      return node.value.value;
+    } else {
+      console.log(`Key not found: ${key}`);
+      return null;
     }
-    return null;
   }
 
   has(key) {
@@ -100,7 +103,7 @@ class HashMap {
   }
 
   remove(key) {
-    let index = this.hash(key);
+    const index = this.hash(key);
     if (index < 0 || index >= this.buckets.length) {
       throw new Error("Trying to access index out of bounds");
     }
@@ -137,9 +140,9 @@ class HashMap {
   }
 
   clear() {
-    this.loadFactor = loadFactor;
-    this.capacity = capacity;
-    this.buckets = [];
+    this.loadFactor = this.loadFactor;
+    this.capacity = 16;
+    this.buckets = Array(this.capacity).fill(null);
     this.size = 0;
   }
 
