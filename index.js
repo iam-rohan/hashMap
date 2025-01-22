@@ -19,18 +19,21 @@ export default class HashMap {
   }
 
   set(key, value) {
-    let index = this.hash(key);
+    console.log("Bucket length: " + this.buckets.length);
 
-    if (this.size >= this.capacity * this.loadFactor) {
+    if (this.size / this.buckets.length > 0.75) {
+      console.log("Growing hash map...");
       this.grow();
     }
+
+    let index = this.hash(key);
 
     if (!this.buckets[index]) {
       this.buckets[index] = new LinkedList();
     }
 
     const existingNode = this.buckets[index].find((node) => {
-      console.log("Inspecting node:", node);
+      console.log("Found previous node entry for key:", key);
       return node.key === key;
     });
 
@@ -45,22 +48,21 @@ export default class HashMap {
   }
 
   grow() {
-    console.log("Growing hash map...");
+    const newBuckets = new Array(this.buckets.length * 2).fill(null);
     const oldBuckets = this.buckets;
-    this.capacity *= 2;
-    this.buckets = Array(this.capacity).fill(null);
+
+    this.buckets = newBuckets;
     this.size = 0;
 
-    oldBuckets.forEach((bucket) => {
+    for (const bucket of oldBuckets) {
       if (bucket) {
-        let currentNode = bucket.head;
-        while (currentNode) {
-          console.log(`Rehashing key: ${currentNode.value.key}, value: ${currentNode.value.value}`);
-          this.set(currentNode.value.key, currentNode.value.value);
-          currentNode = currentNode.nextNode;
+        let current = bucket.head;
+        while (current) {
+          this.set(current.value.key, current.value.value);
+          current = current.nextNode;
         }
       }
-    });
+    }
   }
 
   get(key) {
